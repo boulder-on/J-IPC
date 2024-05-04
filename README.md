@@ -14,3 +14,33 @@ The primitives you have access to are:
 * Semaphores
 * Shared Memory
 * Shared Queues
+
+Usage:
+
+``` Java
+// Autoclose will auto unlock as well
+try (var sem1 = IPC.openSemaphore("/testsem2");) {
+
+    if (sem1.lock(false))
+    {
+        //do privileged work
+        
+        sem1.unlock();            
+    }
+    assertTrue(sem1.unlock());
+}
+
+try (Arena a = Arena.ofConfined();
+     SharedMemory shm = IPC.openMemory("my_test_mem", 2048, a);)
+{
+    shm.asByteBuffer().putInt(3000).putDouble(1000);
+}
+
+try (var queue = IPC.openQueue("/testqueue", 10, 1024);)
+{
+    byte[] msg = new byte[1024];
+    msg[0] = 1; msg[1] = 2;
+    IPC.writeQueue(queue, msg, msg.length, 1);
+}
+
+```
